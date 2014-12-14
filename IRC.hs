@@ -9,9 +9,17 @@ import Text.Printf (printf)
 import Data (BotState(..), Bot, io)
 import Net (write)
 import Config (Config(..))
+import Parser (Message(..), Command(..), parseMessage)
 
 joinChannels :: [String] -> Bot ()
 joinChannels = foldr (\ch -> (>>) (write ("JOIN " ++ ch))) (return ())
+
+privmsg :: String -> String -> Bot ()
+privmsg to text = write $ "PRIVMSG " ++ to ++ " :" ++ text 
+
+react :: Message -> Bot ()
+react m@(Message { command = Privmsg }) = privmsg (location m) "hello"
+react _ = return ()
 
 start :: Bot ()
 start = do
@@ -28,3 +36,8 @@ listen :: Handle -> Bot ()
 listen h = forever $ do
     s <- init <$> io (hGetLine h)
     io $ printf "< %s\n" s
+
+    let message = parseMessage s
+    case message of
+        (Left err) -> io $ print err
+        (Right m) -> react m
