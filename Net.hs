@@ -8,14 +8,16 @@ import Control.Exception (bracket_)
 import Text.Printf (printf, hPrintf)
 import Control.Monad.Reader (asks)
 
-connect :: String -> Int -> IO BotState
-connect server port = notify $ do
-    h <- connectTo server $ PortNumber (fromIntegral port)
+import Config (Config, server, port)
+
+connect :: Config -> IO BotState
+connect cfg = notify $ do
+    h <- connectTo (server cfg) $ PortNumber (fromIntegral (port cfg))
     hSetBuffering h NoBuffering
-    return BotState { handle = h }
+    return BotState { handle = h, config = cfg }
     where
         notify = bracket_
-            (printf "Connecting to %s... " server >> hFlush stdout)
+            (printf "Connecting to %s... " (server cfg) >> hFlush stdout)
             (putStrLn "done.")
 
 write :: String -> Bot ()

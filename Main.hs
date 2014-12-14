@@ -7,15 +7,15 @@ import Control.Monad.Reader (runReaderT)
 import Data (BotState(handle))
 import Net (connect)
 import IRC (start)
-
-server  = "irc.freenode.net"
-port    = 6667
-nick    = "HaskellHawk"
-channel = "#botwar"
-
+import Config (readConfig)
 
 main :: IO ()
-main = bracket (connect server port) disconnect run
+main = config >>= \ei ->
+    case ei of 
+        (Right cfg) -> bracket (connect cfg) disconnect run
+        (Left err) -> print err
+
     where
         disconnect = hClose . handle
-        run        = runReaderT (start nick channel)
+        run        = runReaderT start
+        config     = readConfig "bot.config" 
