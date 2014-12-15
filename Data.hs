@@ -14,6 +14,7 @@ io = liftIO
 data BotState = BotState { 
       handle :: Handle
     , config :: Config
+    , source :: String
 }
 
 type Bot = ReaderT BotState IO

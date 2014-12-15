@@ -14,7 +14,7 @@ connect :: Config -> IO BotState
 connect cfg = notify $ do
     h <- connectTo (server cfg) $ PortNumber (fromIntegral (port cfg))
     hSetBuffering h NoBuffering
-    return BotState { handle = h, config = cfg }
+    return BotState { handle = h, config = cfg, source = "https://github.com/jdiez17/HaskellHawk" }
     where
         notify = bracket_
             (printf "Connecting to %s... " (server cfg) >> hFlush stdout)
