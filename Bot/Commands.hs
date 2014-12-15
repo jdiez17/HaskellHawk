@@ -6,12 +6,12 @@ import Data (Bot, BotState(..))
 import Data.List (isPrefixOf)
 import IRC.Parser (Message(..))
 import IRC.Commands (respond)
-import IO.GHC (respondWithGHC)
+import IO.Haskell (respondWithHaskell)
 
 cmds :: [(String, Message -> Bot ())]
 cmds = [
         ("engage", \m -> respond m "Engaged."),
-        ("h> ", \m -> respondWithGHC m $ payload m),
+        ("> ", \m -> respondWithHaskell m $ payload m),
         ("source", \m -> asks source >>= respond m)
     ]
 
