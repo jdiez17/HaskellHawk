@@ -12,4 +12,8 @@ respond m reply = privmsg (location m) reply
 
 respondMany :: Message -> [String] -> Bot ()
 respondMany _ [] = return ()
-respondMany m (x:xs) = privmsg (location m) x >> respondMany m xs
+respondMany m xs = privmsg (location m) x >> respondMany m xs'
+    where
+        x = head xs
+        xs' = take 4 $ tail xs
+          
