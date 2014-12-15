@@ -17,7 +17,7 @@ data Message = Message {
 } deriving (Show)
 
 data Ping = Ping {
-      response :: String
+    response :: String
 } deriving (Show)
 
 data Sequence = M Message | P Ping
@@ -46,7 +46,7 @@ message = do
     location' <- parseLocation
     payload' <- parsePayload
 
-    return Message {
+    return $ Message {
           sender = sender'
         , command = command'
         , location = location'
@@ -58,10 +58,12 @@ ping = do
     result <- string "PING :" *> many (noneOf "\r\n")
     return $ Ping { response = result }
 
+p <||> q = try p <|> q
+
 sequence :: Parser Sequence
 sequence =
-       P <$> ping
-   <|> M <$> message
+         (M <$> message)
+    <||> (P <$> ping)
 
 parseSequence :: String -> Either ParseError Sequence
 parseSequence = parse sequence "irc-text"
