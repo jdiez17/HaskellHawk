@@ -6,7 +6,7 @@ import Control.Monad.Reader (runReaderT)
 
 import Data (BotState(handle))
 import Net (connect)
-import IRC (start)
+import IRC.IRC (start)
 import Config (readConfig)
 
 main :: IO ()

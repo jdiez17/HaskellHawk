@@ -1,4 +1,4 @@
-module Parser where
+module IRC.Parser where
 
 import Text.ParserCombinators.Parsec (Parser, ParseError, parse, spaces, char, many, noneOf, string)
 import Text.Parsec.Char (endOfLine)

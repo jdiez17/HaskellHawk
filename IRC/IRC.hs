@@ -1,4 +1,4 @@
-module IRC where
+module IRC.IRC where
 
 import Control.Monad (forever)
 import Control.Monad.Reader (asks)
@@ -9,17 +9,14 @@ import Text.Printf (printf)
 import Data (BotState(..), Bot, io)
 import Net (write)
 import Config (Config(..))
-import Parser (Message(..), Command(..), parseMessage)
+import IRC.Parser (Message(..), parseMessage)
+import Bot.Commands (runCommand)
 
 joinChannels :: [String] -> Bot ()
 joinChannels = foldr (\ch -> (>>) (write ("JOIN " ++ ch))) (return ())
 
-privmsg :: String -> String -> Bot ()
-privmsg to text = write $ "PRIVMSG " ++ to ++ " :" ++ text 
-
 react :: Message -> Bot ()
-react m@(Message { command = Privmsg }) = privmsg (location m) "hello"
-react _ = return ()
+react m = maybe (return ()) id (runCommand m) 
 
 start :: Bot ()
 start = do
@@ -27,9 +24,7 @@ start = do
     write $ "NICK " ++ nick cfg
     write $ "USER " ++ nick cfg ++ " 0 * :HHW bot"
 
-    let channels' = channels cfg
-    joinChannels channels'
-
+    joinChannels (channels cfg)
     asks handle >>= listen
 
 listen :: Handle -> Bot ()
