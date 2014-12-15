@@ -9,11 +9,15 @@ import Text.Printf (printf)
 import Data (BotState(..), Bot, io)
 import Net (write)
 import Config (Config(..))
-import IRC.Parser (Message(..), parseMessage)
+import IRC.Parser (Sequence(..), Ping(..), parseSequence)
 import Bot.Commands (runCommand)
 
 joinChannels :: [String] -> Bot ()
 joinChannels = foldr (\ch -> (>>) (write ("JOIN " ++ ch))) (return ())
+
+react :: Sequence -> Bot ()
+react (M message) = runCommand message
+react (P ping) = write $ "PONG :" ++ (response ping) 
 
 start :: Bot ()
 start = do
@@ -29,7 +33,7 @@ listen h = forever $ do
     s <- init <$> io (hGetLine h)
     io $ printf "< %s\n" s
 
-    let message = parseMessage s
-    case message of
+    let parsedSeq = parseSequence s
+    case parsedSeq of
         (Left err) -> io $ print err
-        (Right m) -> runCommand m
+        (Right seq') -> react seq'

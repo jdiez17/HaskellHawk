@@ -1,18 +1,27 @@
 module IRC.Parser where
 
-import Text.ParserCombinators.Parsec (Parser, ParseError, parse, spaces, char, many, noneOf, string)
+import Prelude hiding (sequence)
+
+import Text.ParserCombinators.Parsec (Parser, ParseError, parse, spaces, char, many, noneOf, string, try)
 import Text.Parsec.Char (endOfLine)
-import Control.Applicative ((*>), (<*), (<|>))
+import Control.Applicative ((*>), (<*), (<|>), (<$>))
 
 data Command = Privmsg | Join
     deriving (Show)
 
 data Message = Message {
-      sender :: String 
+      sender :: String
     , command :: Command
     , location :: String
     , payload :: String
 } deriving (Show)
+
+data Ping = Ping {
+      response :: String
+} deriving (Show)
+
+data Sequence = M Message | P Ping
+    deriving (Show)
 
 -- < :concieggs!~concieggs@sigkill.dk PRIVMSG #test :HaskellHawk: Hohoho!  GlÃ¦delig jul!
 
@@ -20,7 +29,7 @@ parseSender :: Parser String
 parseSender = spaces *> char ':' *> many (noneOf " ") <* char ' '
 
 parseCommand :: Parser Command
-parseCommand = 
+parseCommand =
         (string "PRIVMSG " >> return Privmsg)
     <|> (string "JOIN " >> return Join)
 
@@ -31,18 +40,28 @@ parsePayload :: Parser String
 parsePayload = many (noneOf "\r\n")
 
 message :: Parser Message
-message = do 
+message = do
     sender' <- parseSender
     command' <- parseCommand
     location' <- parseLocation
     payload' <- parsePayload
 
-    return Message { 
+    return Message {
           sender = sender'
         , command = command'
         , location = location'
-        , payload = payload' 
+        , payload = payload'
     }
 
-parseMessage :: String -> Either ParseError Message
-parseMessage = parse message "irc-text"
+ping :: Parser Ping
+ping = do
+    result <- string "PING :" *> many (noneOf "\r\n")
+    return $ Ping { response = result }
+
+sequence :: Parser Sequence
+sequence =
+       P <$> ping
+   <|> M <$> message
+
+parseSequence :: String -> Either ParseError Sequence
+parseSequence = parse sequence "irc-text"
