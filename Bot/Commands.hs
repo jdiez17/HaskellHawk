@@ -2,10 +2,10 @@ module Bot.Commands where
 
 import Control.Monad.Reader (asks)
 
-import Data (Bot, BotState(..), io)
+import Data (Bot, BotState(..))
 import Data.List (isPrefixOf)
 import IRC.Parser (Message(..))
-import IRC.Commands (respond, respondMany)
+import IRC.Commands (respond)
 import IO.GHC (respondWithGHC)
 
 cmds :: [(String, Message -> Bot ())]
@@ -15,11 +15,11 @@ cmds = [
         ("source", \m -> asks source >>= respond m)
     ]
 
-runCommand :: Message -> Maybe (Bot ())
+runCommand :: Message -> Bot ()
 runCommand msg = match cmds
     where
-        match [] = Nothing
+        match [] = return () -- No action.
         match ((cmd, resp):xs) = if cmd `isPrefixOf` text
-                                 then Just (resp msg { payload = drop (length cmd) $ text })
+                                 then resp msg { payload = drop (length cmd) $ text }
                                  else match xs
         text = payload msg

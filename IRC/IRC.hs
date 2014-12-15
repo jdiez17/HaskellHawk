@@ -15,9 +15,6 @@ import Bot.Commands (runCommand)
 joinChannels :: [String] -> Bot ()
 joinChannels = foldr (\ch -> (>>) (write ("JOIN " ++ ch))) (return ())
 
-react :: Message -> Bot ()
-react m = maybe (return ()) id (runCommand m) 
-
 start :: Bot ()
 start = do
     cfg <- asks config
@@ -35,4 +32,4 @@ listen h = forever $ do
     let message = parseMessage s
     case message of
         (Left err) -> io $ print err
-        (Right m) -> react m
+        (Right m) -> runCommand m
