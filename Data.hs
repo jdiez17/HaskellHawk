@@ -1,7 +1,7 @@
 module Data where
 
 import System.IO (Handle)
-import Control.Monad.Reader (ReaderT)
+import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.IO.Class (liftIO)
 
 import Config (Config(..))
@@ -18,3 +18,6 @@ data BotState = BotState {
 }
 
 type Bot = ReaderT BotState IO
+
+runBot :: Bot a -> BotState -> IO a
+runBot = runReaderT

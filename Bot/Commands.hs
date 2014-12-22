@@ -1,8 +1,9 @@
 module Bot.Commands where
 
-import Control.Monad.Reader (asks)
+import Control.Monad.Reader (asks, ask)
+import Control.Concurrent (forkIO)
 
-import Data (Bot, BotState(..))
+import Data (Bot, BotState(..), io, runBot)
 import Data.List (isPrefixOf)
 import IRC.Parser (Message(..))
 import IRC.Commands (respond)
@@ -16,10 +17,16 @@ cmds = [
     ]
 
 runCommand :: Message -> Bot ()
-runCommand msg = match cmds
+runCommand msg = do
+    st <- ask
+    _ <- io $ forkIO $ runBot action st
+    
+    return ()
     where
+        action = match cmds
+        text = payload msg
+
         match [] = return () -- No action.
         match ((cmd, resp):xs) = if cmd `isPrefixOf` text
                                  then resp msg { payload = drop (length cmd) $ text }
                                  else match xs
-        text = payload msg
