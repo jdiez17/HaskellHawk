@@ -7,7 +7,7 @@ import IRC.Parser (Message)
 import IRC.Commands (respondMany)
 import Data (Bot, io)
 
-dockerArgs = ["run", "-u", "run", "--rm", "jdiez/safeeval", "safehaskell"]
+dockerArgs = ["run", "-u", "run", "--rm", "jdiez/safehaskell", "/safehaskell"]
 
 runHaskell :: String -> IO [String]
 runHaskell cmd = do 
