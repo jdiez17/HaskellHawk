@@ -8,8 +8,15 @@ import Database.Redis as R (Connection, Redis, Reply, Status(..), runRedis, get,
 import Data.ByteString (ByteString)
 import Control.Exception (try, SomeException)
 import Control.Monad (join)
+import Data.ByteString (append)
 
 import Data (BotState(..), Bot, io)
+
+namespace :: ByteString
+namespace = "HaskellHawk." -- make this configurable?
+
+namespacedKey :: ByteString -> ByteString
+namespacedKey k = namespace `append` k 
 
 queryRedis :: forall e a. R.Redis (Either e a) -> Bot (Maybe a)
 queryRedis r = do
@@ -26,7 +33,7 @@ queryRedis r = do
         redisComp db = io $ try $ runRedis db r 
 
 get :: ByteString -> Bot (Maybe ByteString)
-get key = queryRedis (R.get key) >>= return . join
+get key = queryRedis (R.get $ namespacedKey key) >>= return . join
 -- We need `join` here because queryRedis returns a Maybe,
 -- and R.get returns Maybe ByteString. 
 -- join turns Maybe (Maybe ByteString) into Maybe ByteString.
@@ -35,7 +42,7 @@ get key = queryRedis (R.get key) >>= return . join
 
 set :: ByteString -> ByteString -> Bot Bool
 set key val = do
-    rep <- queryRedis (R.set key val)
+    rep <- queryRedis (R.set (namespacedKey key) val)
 
     case rep of 
         Nothing -> return False

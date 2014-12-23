@@ -8,7 +8,8 @@ import Data.List (isPrefixOf)
 import IRC.Parser (Message(..))
 import IRC.Commands (respond)
 import IO.Haskell (respondWithHaskell)
-import Text.Regex (mkRegex, matchRegex)
+import IO.Factoids (remember, recall, matchRemember, matchRecall)
+import Text.ParserCombinators.Parsec (parse, Parser)
 
 type MatchF = String -> Maybe String 
 
@@ -17,17 +18,21 @@ prefix p m = if p `isPrefixOf` m
              then return (drop (length p) m) 
              else Nothing
 
-regex :: String -> MatchF 
-regex str m = case matchRegex (mkRegex str) m of
-    (Just _) -> return m
-    Nothing -> Nothing
+parser :: Parser String -> MatchF
+parser p m = case result of
+    (Left _) -> Nothing
+    (Right _) -> return m
+
+    where
+        result = parse p "" m
 
 cmds :: [(MatchF, Message -> Bot ())]
 cmds = [
         (prefix "engage", \m -> respond m "Engaged."),
         (prefix "> ",     \m -> respondWithHaskell m $ drop 3 $ payload m),
         (prefix "source", \m -> asks source >>= respond m),
-        (regex "^([^\\s]+) is (.+)", \m -> respond m "do the thing")
+        (parser matchRemember, remember),
+        (parser matchRecall, recall)
     ]
 
 runCommand :: Message -> Bot ()
