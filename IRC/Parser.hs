@@ -4,13 +4,19 @@ import Prelude hiding (sequence)
 
 import Text.ParserCombinators.Parsec (Parser, ParseError, parse, spaces, char, many, noneOf, string, try)
 import Text.Parsec.Char (endOfLine)
-import Control.Applicative ((*>), (<*), (<|>), (<$>))
+import Control.Applicative ((<*>), (*>), (<*), (<|>), (<$>))
 
 data Command = Privmsg | Join
     deriving (Show)
 
+data Sender = Sender {
+      nick :: String
+    , user :: String
+    , host :: String
+} deriving (Show)
+
 data Message = Message {
-      sender :: String
+      sender :: Sender 
     , command :: Command
     , location :: String
     , payload :: String
@@ -25,8 +31,19 @@ data Sequence = M Message | P Ping
 
 -- < :concieggs!~concieggs@sigkill.dk PRIVMSG #test :HaskellHawk: Hohoho!  GlÃ¦delig jul!
 
-parseSender :: Parser String
-parseSender = spaces *> char ':' *> many (noneOf " ") <* char ' '
+parseSender :: Parser Sender 
+parseSender = do
+    _ <- spaces *> char ':'
+    nick' <- many (noneOf "!")
+    user' <- many (noneOf "@")
+    host' <- many (noneOf " ")
+    _ <- char ' '
+
+    return $ Sender {
+          nick = nick'
+        , user = user'
+        , host = host'
+    }
 
 parseCommand :: Parser Command
 parseCommand =
