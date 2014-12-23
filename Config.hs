@@ -12,6 +12,14 @@ data Config = Config {
     , channels :: [String]
 } deriving (Show)
 
+defaultConfig :: Config
+defaultConfig = Config { 
+      server = "irc.freenode.net"
+    , port = 6667
+    , nick = "HaskellHawk-defualt"
+    , channels = ["#test"]
+}
+
 content :: Parser String
 content = many (noneOf "\r\n")
 

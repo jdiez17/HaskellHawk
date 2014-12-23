@@ -11,6 +11,7 @@ import Net (write)
 import Config (Config(..))
 import IRC.Parser (Sequence(..), Ping(..), parseSequence)
 import Bot.Commands (runCommand)
+import Bot.Database
 
 joinChannels :: [String] -> Bot ()
 joinChannels = foldr (\ch -> (>>) (write ("JOIN " ++ ch))) (return ())
