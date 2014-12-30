@@ -30,7 +30,7 @@ parser p m = case result of
 cmds :: [(MatchF, Message -> Bot ())]
 cmds = [
         (prefix "engage", \m -> respond m "Engaged."),
-        (prefix "> ",     \m -> respondWithHaskell m $ drop 3 $ payload m),
+        (prefix "> ",     \m -> respondWithHaskell m $ payload m),
         (prefix "source", \m -> asks source >>= respond m),
         (parser matchRemember, remember),
         (parser matchRecall, recall)
