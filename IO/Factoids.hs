@@ -10,7 +10,7 @@ import Control.Applicative ((*>))
 import Data.ByteString.Char8 (pack, unpack)
 
 matchRemember :: Parser String
-matchRemember = many (noneOf " ") *> string " is " *> many (noneOf "\r\n")
+matchRemember = string "learn: " *> many (noneOf " ") *> string " is " *> many (noneOf "\r\n")
 
 matchRecall :: Parser String
 matchRecall = many (noneOf " ?") *> string "?"
@@ -26,8 +26,8 @@ remember m = do
 
     where
         args = words (payload m)
-        name = head args
-        def = unwords $ drop 1 $ tail args
+        name = drop 1 $ head args
+        def = unwords $ drop 2 $ tail args
 
 -- Example message: "haskell?"
 recall :: Message -> Bot ()
