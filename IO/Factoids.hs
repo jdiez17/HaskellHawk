@@ -26,8 +26,8 @@ remember m = do
 
     where
         args = words (payload m)
-        name = drop 1 $ head args
-        def = unwords $ drop 2 $ tail args
+        name = head $ drop 1 args
+        def = unwords $ drop 3 args
 
 -- Example message: "haskell?"
 recall :: Message -> Bot ()
