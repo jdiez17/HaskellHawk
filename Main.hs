@@ -1,6 +1,6 @@
 module Main where
 
-import System.IO (hClose)
+import System.IO (hClose, hSetEncoding, utf8, stdout)
 import Control.Exception (bracket)
 import Control.Monad.Reader (runReaderT)
 
@@ -10,7 +10,7 @@ import IRC.IRC (start)
 import Config (readConfig)
 
 main :: IO ()
-main = config >>= \ei ->
+main = hSetEncoding stdout utf8 >> config >>= \ei ->
     case ei of 
         (Right cfg) -> bracket (connect cfg) disconnect run
         (Left err) -> print err
