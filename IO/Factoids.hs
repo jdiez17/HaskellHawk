@@ -13,7 +13,7 @@ matchRemember :: Parser String
 matchRemember = many (noneOf " ") *> string " is " *> many (noneOf "\r\n")
 
 matchRecall :: Parser String
-matchRecall = many (noneOf "?") *> string "?"
+matchRecall = many (noneOf " ?") *> string "?"
 
 -- Example message: "haskell is a pretty awesome language"
 remember :: Message -> Bot ()
